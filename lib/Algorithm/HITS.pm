@@ -3,7 +3,7 @@ package Algorithm::HITS;
 use strict;
 use warnings;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use fields qw(graph graph_t size hub_v aut_v);
 
@@ -12,7 +12,7 @@ sub new { bless {}, $_[0] }
 use PDL;
 use List::Util;
 #use Data::Dumper;
-#use PDL::IO::Dumper;
+use PDL::IO::Dumper;
 
 sub graph {
     my $self = shift;
@@ -76,6 +76,8 @@ sub iterate {
 
 sub result {
     my $self = shift;
+#    print STDERR sdump $self->{aut_v};
+#    print STDERR sdump $self->{hub_v};
     +{
 	authority => $self->{aut_v},
 	hub => $self->{hub_v},
