@@ -1,5 +1,7 @@
 use Test::More tests => 4;
+
 ok(1);
+
 #use ExtUtils::testlib;
 use Algorithm::HITS;
 
@@ -15,9 +17,6 @@ $h->graph(
 	   2 => 1,
 	   ]
 	  );
-
-$h->set_authority([qw(1 2 3)]);
-$h->set_hub([qw(3 2 1)]);
 
 ok($h->iterate(2));
 ok($h->result());

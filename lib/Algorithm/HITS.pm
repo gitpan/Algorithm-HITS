@@ -3,17 +3,15 @@ package Algorithm::HITS;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
-use fields qw(graph size hub_v aut_v power_matrix power_matrix_t);
+use fields qw(graph graph_t size hub_v aut_v);
 
-sub new {
-    bless {}, $_[0];
-}
+sub new { bless {}, $_[0] }
 
 use PDL;
 use List::Util;
-use Data::Dumper;
+#use Data::Dumper;
 #use PDL::IO::Dumper;
 
 sub graph {
@@ -33,15 +31,10 @@ sub graph {
 				$graph->[$i+1],
 				) .= 1;
     }
+    $self->{graph_t} = transpose $self->{graph};
 
-    $self->{hub_v} = ones $size;
-    $self->{aut_v} = ones $size;
-
-    $self->{hub_v} /= sum $self->{hub_v};
-    $self->{aut_v} /= sum $self->{aut_v};
-
-    $self->{power_matrix_t} = transpose($self->{graph}) x $self->{graph};
-    $self->{power_matrix} = $self->{graph} x transpose($self->{graph});
+    $self->{hub_v} = norm ones $size;
+    $self->{aut_v} = norm ones $size;
 
 #    print STDERR $self->{graph}->slice(':'), $self->{power_matrix_t}->slice(':'), $self->{power_matrix}->slice(':');
 
@@ -54,7 +47,7 @@ sub set_authority {
     foreach my $i (0..$#$vect){
 	$self->{aut_v}->index($i) .= $vect->[$i];
     }
-    $self->{aut_v} /= sum $self->{aut_v};
+    $self->{aut_v} = norm $self->{aut_v};
     1;
 }
 
@@ -64,7 +57,7 @@ sub set_hub {
     foreach my $i (0..$#$vect){
 	$self->{hub_v}->index($i) .= $vect->[$i];
     }
-    $self->{hub_v} /= sum $self->{hub_v};
+    $self->{hub_v} = norm $self->{hub_v};
     1;
 }
 
@@ -72,14 +65,11 @@ sub iterate {
     my $self = shift;
     my $iter = shift || 1;
     foreach (1..$iter){
-	$self->{aut_v} = $self->{aut_v} x $self->{power_matrix};
-	$self->{hub_v} = $self->{hub_v} x $self->{power_matrix_t};
+	$self->{hub_v} = norm $self->{aut_v} x $self->{graph};
 
-	# normalization
-	$self->{hub_v} /= sum $self->{hub_v};
-	$self->{aut_v} /= sum $self->{aut_v};
+	$self->{aut_v} = norm $self->{hub_v} x $self->{graph_t};
 
-#	print STDERR $self->{aut_v}->slice(':'), $self->{hub_v}->slice(':');
+#	print STDERR "Authority => ", $self->{aut_v}->slice(':'), "Hub => ", $self->{hub_v}->slice(':');
     }
     1;
 }
@@ -147,14 +137,13 @@ Return hub vector and authority vector in PDL object format.
 
 =head2 SETTINGS
 
-Set initial authority vector. Values in vector will be normalized by
-being divided by the sum.
+Set initial authority vector. Vector is normalized to unit Euclidean
+length.
 
   $h->set_authority(\@v);
 
 
-Set initial hub vector. Values in vector will be normalized by
-being divided by the sum.
+Set initial hub vector. Vector is normalized to unit Euclidean length.
 
   $h->set_hub(\@v);
 

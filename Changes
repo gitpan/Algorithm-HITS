@@ -3,3 +3,6 @@ Revision history for Perl extension Algorithm-HITS.
 0.01  Sat, 21 Aug 2004 07:22:53 +0800
 	- original version
 
+
+0.02  Sat, 21 Aug 2004 11:52:52 +0800
+	- corrected my previous moronic computation error
