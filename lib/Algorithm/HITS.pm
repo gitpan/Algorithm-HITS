@@ -3,7 +3,7 @@ package Algorithm::HITS;
 use strict;
 use warnings;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use fields qw(graph graph_t size hub_v aut_v);
 
@@ -33,8 +33,8 @@ sub graph {
     }
     $self->{graph_t} = transpose $self->{graph};
 
-    $self->{hub_v} = norm ones $size;
-    $self->{aut_v} = norm ones $size;
+    $self->{hub_v} = norm (ones $size);
+    $self->{aut_v} = norm (ones $size);
 
 #    print STDERR $self->{graph}->slice(':'), $self->{power_matrix_t}->slice(':'), $self->{power_matrix}->slice(':');
 
@@ -65,9 +65,9 @@ sub iterate {
     my $self = shift;
     my $iter = shift || 1;
     foreach (1..$iter){
-	$self->{hub_v} = norm $self->{aut_v} x $self->{graph};
+	$self->{hub_v} = norm ($self->{aut_v} x $self->{graph});
 
-	$self->{aut_v} = norm $self->{hub_v} x $self->{graph_t};
+	$self->{aut_v} = norm ($self->{hub_v} x $self->{graph_t});
 
 #	print STDERR "Authority => ", $self->{aut_v}->slice(':'), "Hub => ", $self->{hub_v}->slice(':');
     }
@@ -149,6 +149,9 @@ Set initial hub vector. Vector is normalized to unit Euclidean length.
 
   $h->set_hub(\@v);
 
+=head1 ACKNOWLEDGEMENT
+
+Thanks goes to Hugo Zanghi for pointing out the bug in normalizing vectors.
 
 =head1 COPYRIGHT AND LICENSE
 
